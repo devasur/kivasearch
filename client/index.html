@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Kiva Loans</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/handlebars.js"></script>
+
+    <link rel="stylesheet" href="/css/flags16.css">
+    <link rel="stylesheet" href="/css/kiva.supercat.css">
+    <link rel="stylesheet" href="/css/Lend.css">
+    <link rel="stylesheet" href="/css/LoanCardsSubView.css">
+    <link rel="stylesheet" href="/css/LoanStatusSubView.css">
+
+
+    <script>
+        var filter_params = {
+          borrower:{
+            borrowerCount:{min:0,max:2},
+            amount_needed:{min:0,max:700},
+            repayment_term:{min:0,max:5},
+            expiration_days:{min:0,max:30},
+            currency_loss_protection:false
+          },
+          partner:{
+            partner_rating:{min:"4",max:"5"},
+            partner_delinquency_rate:{min:0,max:5},
+            partner_default_rate:{min:0,max:4},
+            partner_portfolio_yield:{min:0,max:25},
+            partner_profit_percentage:{min:0,max:25},
+            exclude_pilot:false
+          }
+        };
+        function rangeChanged(slider){  
+            var control = slider.id;            
+            switch(control){
+                case 'borrowers':{
+                    filter_params.borrower.borrowerCount.min = slider.value;
+                    break;
+                }
+                case 'amount_needed':{
+                    filter_params.borrower.amount_needed.max = slider.value;
+                    break;
+                }
+                case 'repayment_term':{
+                    filter_params.borrower.repayment_term.max = slider.value;
+                    break;
+                }
+                case 'expiration_days' :
+                {
+                    filter_params.borrower.expiration_days.max = slider.value;
+                    break;
+                }
+                case 'partner_rating':
+                {
+                    filter_params.partner.partner_rating.min = slider.value;
+                    break;
+                }
+                case 'partner_delinquency_rate':
+                {
+                    filter_params.partner.partner_delinquency_rate.max = slider.value;
+                    break;
+                }
+                case 'partner_default_rate' :{
+                    filter_params.partner.partner_default_rate.max = slider.value;
+                    break;
+                }
+                case 'partner_delinquency_rate':{
+                    filter_params.partner.partner_delinquency_rate.max = slider.value;
+                    break;
+                }
+                case 'partner_portfolio_yield':
+                {
+                    filter_params.partner.partner_portfolio_yield.max = slider.value;
+                    break;
+                }
+                case 'partner_profit_percentage':
+                {
+                    filter_params.partner.partner_profit_percentage.max = slider.value;
+                    break;
+                }
+            }
+            //console.log(JSON.stringify(filter_params));
+            refreshForm();
+            sendDataToServer();
+        }
+        function checkBoxChanged(checkbox){
+            switch(checkbox.id){
+                case 'currency_loss_protection':{
+                    filter_params.borrower.currency_loss_protection = checkbox.checked ? true:false;
+                    console.log("Currency Loss Protection:" + filter_params.borrower.currency_loss_protection );
+                    break;
+                }
+                case 'exclude_pilot':{
+                    filter_params.partner.exclude_pilot = checkbox.checked ? true:false;
+                    console.log("Exclude pilot:" + filter_params.partner.exclude_pilot  );
+                    break;
+                }
+            }
+            sendDataToServer();
+        }
+
+        function refreshForm() {
+            var html = template({   borrowerCount:filter_params.borrower.borrowerCount.min,
+                                    amount_needed:filter_params.borrower.amount_needed.max,
+                                    repayment_term:filter_params.borrower.repayment_term.max,
+                                    expiration_days:filter_params.borrower.expiration_days.max,
+                                    partner_rating:filter_params.partner.partner_rating.min,
+                                    partner_default_rate:filter_params.partner.partner_default_rate.max,
+                                    partner_delinquency_rate:filter_params.partner.partner_delinquency_rate.max,
+                                    partner_portfolio_yield:filter_params.partner.partner_portfolio_yield.max,
+                                    partner_profit_percentage:filter_params.partner.partner_profit_percentage.max,
+                                    exclude_pilot:filter_params.partner.exclude_pilot,
+                                    currency_loss_protection:filter_params.borrower.currency_loss_protection
+                                });
+            document.querySelector("#filters").innerHTML = html;                        
+        }
+
+        function refreshLoans(data){
+            console.log({loans:data});
+            var html = loanTemplate({loans:data}); 
+            document.querySelector("#loans_list").innerHTML = html;  
+        }
+        
+        function sendDataToServer(){
+			$.ajax({
+			  url: "/search",
+			  data: JSON.stringify(filter_params),
+			  processData: false,
+              contentType: "application/json",
+              method:"POST",
+			  success:function(data) { refreshLoans(data);},
+			  error:function() {console.log("Server said BAD");}
+			});        	
+        }
+
+        function initializeScreen(){
+            refreshForm();
+            sendDataToServer();
+        }
+    </script>
+
+    <script id="result-template" type="text/x-handlebars-template">
+        <div class="g8" data-spy="affix">
+        <form>
+            <fieldset>
+                <legend>Loan</legend>
+                <label>Borrowers : > {{borrowerCount}}   </label>
+                1<input id="borrowers" type="range" min="1" max="25" step="1" value="{{borrowerCount}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>25
+                <label>Still Needed : < {{amount_needed}}</label>
+                0<input id="amount_needed" type="range" min="0" max="7500" step="1" value="{{amount_needed}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>7500
+                <label>Repaid within : < {{repayment_term}} months</label>
+                1<input id="repayment_term" type="range" min="1" max="63" step="1" value="{{repayment_term}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>63
+                <label>Expiring in less than {{expiration_days}} days</label>
+                0<input id="expiration_days" type="range" min="1" max="30" step="1" value="{{expiration_days}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>30
+                <label class="checkbox">
+                    <input type="checkbox" id="currency_loss_protection" onchange="checkBoxChanged(this)" {{#if currency_loss_protection}}checked="checked"{{/if}}"> Currency exchange loss protection
+                </label>
+                <legend>Partner</legend>
+                <label>Minimum Rating : > {{partner_rating}}</label> 0<input id="partner_rating" type="range" min="0" max="5" step=".1" value="{{partner_rating}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>5
+                <label>Delinquency < {{partner_delinquency_rate}}% </label>0<input id="partner_delinquency_rate" type="range" min="0" max="7" step=".1" value="{{partner_delinquency_rate}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>7
+                <label>Default < {{partner_default_rate}}% </label> 0<input id="partner_default_rate" type="range" min="0" max="12" step=".1" value="{{partner_default_rate}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>12
+                <label>Portfolio yield < {{partner_portfolio_yield}}%</label> 0<input id="partner_portfolio_yield" type="range" min="5" max="60" step="1" value="{{partner_portfolio_yield}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>60
+                <label>Profit < {{partner_profit_percentage}}% </label> 0<input id="partner_profit_percentage" type="range" min="-1" max="25" step="1" value="{{partner_profit_percentage}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>25
+                <label class="checkbox">
+                    <input type="checkbox" id="exclude_pilot" onchange="checkBoxChanged(this)" {{#if exclude_pilot}}checked="checked"{{/if}}"> Exclude pilot
+                </label>
+            </fieldset>
+            </fieldset>
+        </form>
+        </div>
+    </script>
+    <script id="loans-template" type="text/x-handlebars-template"> 
+    {{#each loans}} {{> loan}} {{/each}} 
+    </script>
+    <script type="text/javascript">
+        Handlebars.registerHelper('loadDescriptionBlock', function() {
+        if (this.borrower_count == 1) {
+            return "A loan of $" + this.loan_amount+ " helps " + this.name + " " + this.use;
+        } else {
+            return "A portion of " + this.name + "'s $" + this.loan_amount + " loan helps a member " + this.use;
+        }
+        });
+    </script>
+    <script id="loan-partial" type="text/x-handlebars-template"> 
+    <div class="loan">
+                <li>
+                    <article class="loanCard listing  borrowerQuickLook" id="biz_row_520662">
+                        <div class="pic g3 a">
+                            <a class="img img-s200 img img-w200h200" href="http://www.kiva.org/lend/{{id}}"><img src="http://www.kiva.org/img/s200/{{image.id}}.jpg" alt="{{name}}" title="{{name}}" width="200" height="200"></a>
+                        </div>
+                        <span class="info_status">
+                            <div class="desc g4">
+                                <h1>
+                                    <a href="http://www.kiva.org/lend/{{id}}">
+                                        {{name}}
+                                    </a>
+                                </h1>
+                                <div class="borrowerCount">
+                                    {{borrower_count}} Borrowers
+                                </div>
+                                <div class="country_sector">
+                                    <span class="f16 {{location.country_code}}">
+                                    </span>
+                                    <span class="bold">
+                                        {{country_name}}
+                                    </span>
+                                    | {{sector}} | {{activity}}
+                                </div>
+                                <div class="loanDescription">
+                                    <p class="loanExcerpt">
+                                        {{#loadDescriptionBlock}}
+                                        {{/loadDescriptionBlock}}                                        
+                                    </p>
+                                    <a class="small" href="http://www.kiva.org/lend/{{id}}">
+                                    Read their story&nbsp;&gt;</a>
+                                </div>
+                                <div class="mfi">
+                                    Funding via {{partner.name}}
+                                </div>
+                            </div>
+                            <div class="details g2 z">
+                                <div class="loanStatusSubView">
+                                    <div id="{{id}}_amount_raised" class="percentRaised fundRaising ">
+                                        <span id="{{id}}_percent_paid" class="number">
+                                            {{percentage_funded}}%
+                                        </span>
+                                        raised
+                                    </div>
+                                    <div class="fundRaisingMeter meter">
+                                        <div id="{{id}}_bar" style="width:{{percentage_funded}}%">
+                                        </div>
+                                    </div>
+                                    <div class="loanAmount">
+                                        ${{amount_needed_per_borrower}}
+                                        <br>
+                                        (per borrower)
+                                    </div>
+                                </div>
+                                <span id="span{{id}}">
+                                    <a href="http://www.kiva.org/lend/{{id}}" class="button actNow big" data-loan-id="{{id}}">Lend $25</a>
+                                </span>
+                            </div>
+        </div>
+        </span>
+        </article>
+        </li>
+    </div> 
+    </div> 
+    </script>
+
+	<script>
+        var source = document.querySelector("#result-template").innerHTML;
+        template = Handlebars.compile(source);
+        var loanPartialSource = document.querySelector("#loan-partial").innerHTML;        
+        var loanTemplateSource =  document.querySelector("#loans-template").innerHTML;
+        Handlebars.registerPartial("loan", loanPartialSource);
+        loanTemplate = Handlebars.compile(loanTemplateSource); 
+	</script>
+</head>
+<body style="border-left: 100">
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span3" id="filters">
+        </div>
+        <div class="span9" id="loans_list">
+            
+        </div>
+    </div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", initializeScreen());
+</script>
+</body>
+</html>

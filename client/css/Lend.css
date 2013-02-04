@@ -1,0 +1,145 @@
+/* Typo */
+.lendHeader_new h2  { font-family:'Museo Slab 500', Rockwell, Georgia, serif; font-weight:500; font-size: 1.7142em; }
+.lendHeader h2      { font-family:'Museo Slab 500', Rockwell, Georgia, serif; font-weight:500; font-size: 2.357em; }
+
+#listingsCol .no_loans
+, #listingsCol .low_loans{ width: 97%; margin: 10px auto 20px; padding: 10px; background-color: #e8f0f5;}
+#listingsCol .no_loans + h4	{ color: #333;}
+#listingsCol .no_loans .messageText	{ display: inline-block; width: 88%; }
+#listingsCol .no_loans .messageLink	{ display: inline-block; width: 12%; vertical-align: top; }
+
+/* Lend Page */
+
+#listings-loading { margin:50px 0px 0px 200px; font-size:1.5em; display:none; }
+#pickForMe-loading { margin:50px 0px 0px 200px; font-size:1.5em; display:none; }
+
+.lendHeader { margin-top: 20px; margin-bottom: 15px; }
+.businesses .lendHeader_new { margin-top: 0; margin-bottom: 0; }
+
+#low-inventory-help {display:none;margin-top: 15px; }
+
+#advance_options { text-align: center; margin: 12px 0 10px 0; }
+.adv_slider_value_display { padding-bottom:2px; font-size:14px; text-align:right; }
+
+#listingsCol .error {padding: 10px; margin-top: 10px;}
+#listingsCol .notice {padding: 10px; margin-top: 10px;}
+#listingsCol .notice.header {background-color: white; border: none; padding-left: 0; font-weight: bolder;}
+
+form.boxCap > * { float: left; }
+form.boxCap input   { margin-top: 6px; width: 300px; }
+form.boxCap button,
+form.boxCap .reset  { margin-top: 7px; margin-left: 10px; }
+form.boxCap .reset  { color: #fff;}
+form.boxCap label   { color: #fff; float: right; margin-top: 8px; }
+form.boxCap select  { margin-left: 5px; }
+
+.ui-autocomplete li a .f16 { margin-left: -26px; } /* auto-complete country flags */
+
+/* auto-complete sector icons */
+.ui-autocomplete li a .sector16 { margin-left: -26px; display: inline-block; width: 16px; height: 16px;}
+.sector16.agriculture {background: url(/img/icon/sector/w16h16/sector_1.gif) no-repeat;}
+.sector16.transportation {background: url(/img/icon/sector/w16h16/sector_3.gif) no-repeat;}
+.sector16.services {background: url(/img/icon/sector/w16h16/sector_4.gif) no-repeat;}
+.sector16.clothing {background: url(/img/icon/sector/w16h16/sector_5.gif) no-repeat;}
+.sector16.health {background: url(/img/icon/sector/w16h16/sector_6.gif) no-repeat;}
+.sector16.retail {background: url(/img/icon/sector/w16h16/sector_7.gif) no-repeat;}
+.sector16.manufacturing {background: url(/img/icon/sector/w16h16/sector_8.gif) no-repeat;}
+.sector16.arts {background: url(/img/icon/sector/w16h16/sector_9.gif) no-repeat;}
+.sector16.housing {background: url(/img/icon/sector/w16h16/sector_10.gif) no-repeat;}
+.sector16.food {background: url(/img/icon/sector/w16h16/sector_12.gif) no-repeat;}
+.sector16.wholesale {background: url(/img/icon/sector/w16h16/sector_13.gif) no-repeat;}
+.sector16.construction {background: url(/img/icon/sector/w16h16/sector_14.gif) no-repeat;}
+.sector16.education {background: url(/img/icon/sector/w16h16/sector_15.gif) no-repeat;}
+.sector16.personal_use {background: url(/img/icon/sector/w16h16/sector_16.gif) no-repeat;}
+.sector16.entertainment {background: url(/img/icon/sector/w16h16/sector_17.gif) no-repeat;}
+
+header #resultStatus { float: right; color: #888; letter-spacing: 0.2em; }
+header #resultStatus #resultsNumber { font-size: 24px; font-weight: 600; }
+header #resultStatus #resultsText   { font-size: 14px; font-weight: 100; text-transform:lowercase; }
+
+.listingFiltersForm fieldset	{ border-bottom: #ccc 1px solid; padding-bottom:12px; }
+.listingFiltersForm label				{ clear: left; float: left; padding: 2px 0; width: 100%; }
+.listingFiltersForm label .value		{ float: left; overflow: hidden; text-overflow: ellipsis; width: 140px; white-space: nowrap; }
+.listingFiltersForm label .facet		{ color: #888; float: right; }
+.listingFiltersForm label input[type="checkbox"]   { float: left; margin-right: 5px; margin-top: 1px; height:1.1em; width:1.1em }
+
+#map-image  { background: url(/img/world_map.png) no-repeat 0 0; cursor: pointer; width: 212px; height: 126px; }
+
+#listingsCol  { min-height: 1050px; }
+
+.inputDisabler	{ background-color: #fff; display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10; filter: alpha(opacity=30); opacity: .3; }
+.inputDisabler.disablerOn { display: block; }
+
+/* listings loancards */
+.loanCards.listing							{ padding-top: 10px; }
+.loanCards.listing li						{ border-bottom: #ccc 1px dotted; float: left; padding: 20px 0; }
+.borrowerQuickLook .pic img					{ border: 1px solid #ccc; padding: 7px; }
+.borrowerQuickLook .desc .country_sector	{ font-size: .8571em; padding: 10px 0; }
+.borrowerQuickLook .desc .loanExcerpt      { font-size: 1.1429em; color: #333;}
+.borrowerQuickLook .desc .loanExcerpt .loanAmount       { font-size: 1em; color: #333;}
+.borrowerQuickLook .desc p.loanExcerpt { margin-bottom: 0; }
+.borrowerQuickLook .desc .mfi				{ font-size: .8571em; color: #888; padding: 10px 0; }
+.borrowerQuickLook .loanStatusSubView .percentRaised						{ color: #888; margin-bottom: 15px; line-height: 1; }
+.borrowerQuickLook .loanStatusSubView .percentRaised.fullyFunded			{ color: #4b9123; }
+.borrowerQuickLook .loanStatusSubView .percentRaised.fullyFunded .number 	{ color: #4b9123; }
+.borrowerQuickLook .loanStatusSubView .number	{ color: #333; font-size: 2.5714em; margin-right: 3px;}
+.borrowerQuickLook .loanAmount					{ margin-top:14px; font-weight:normal; color: black; font-size:13px;}
+.borrowerQuickLook .fundAction					{ margin:14px 0; }
+.borrowerQuickLook .fundAction.badgeSpaced		{ margin-bottom:14px; }
+.borrowerQuickLook .fundAction .matchBadge		{ display: block; width:100%; font-size:0; margin-bottom:-15px; }
+.borrowerQuickLook .fundAction .matchBadge img	{ position:relative; left:103px;  margin-bottom:-18px; z-index:3000;}
+.borrowerQuickLook .fundAction .fundActionStatus		{ font-family:"Museo Slab 300", Rockwell, Georgia, serif; font-weight:300; font-size: 20px; }
+.borrowerQuickLook .fundAction .loanMatcherNotice		{ font-size: 10px; color: #888; padding: 2px 8px; }
+.borrowerQuickLook .fundAction .loanMatcherNotice h1	{color: #4B9123; font-size:1em;font-weight:bold; }
+
+
+/* Lend Feature */
+#lendFeature p { margin-bottom: 10px; }
+#lendFeature > header		{ margin-top: 0; margin-bottom: 15px; }
+#lendFeature > header h1	{ color: white; background-color: #74B446; display: inline-block; font-size: .9286em; padding: 4px 14px; text-transform: uppercase; }
+#lendFeature h2 		{ font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif; font-size-adjust:0.488; font-weight: 400; font-size: 1.5714em; margin-top: 0; }
+#lendFeature h3 		{ font-size: .9286em; margin-top: 5px; margin-bottom: 15px; }
+#lendFeature hgroup h2	{ margin-bottom: 0; }
+
+#lendFeature figure	{ float: left; margin-right: 10px; width: 110px; }
+#lendFeature img		{ float: left; margin-right: 10px; }
+#lendFeature figure img 	{ float: none; margin: 0; }
+
+.themesFeature .description		{ font-size: .9286em; height: 120px; margin-left: 110px; }
+.themesFeature .fullyFunded,
+.themesFeature .selected		{ font-weight: bold; }
+.themesFeature .fullyFunded		{ color: #888; }
+.themesFeature .selected		{ color: #4b9123; }
+
+#lendFeature #invitesFeatureIntro	{ min-height: 210px; }
+#lendFeature .kivaSteps li 			{ color: #333; font-family:'Proxima Nova Light', 'Helvetica Neue', Arial, Helvetica, sans-serif; font-size-adjust:0.488; font-weight:200; margin: 10px 0; font-size: 1.6429em; line-height: 1.25em; }
+#lendFeature .kivaSteps li .number	{ background-color: #74b446; color: #fff; display: inline-block; margin-right: 10px; padding: 3px; width: 28px; text-align: center; -moz-border-radius: 50px; -webkit-border-radius: 5px; border-radius: 50px; }
+#partner_risk_include_nonrated {margin-top:5px;}
+
+img.featured { width:100px; height: 100px; padding-right: 10px; }
+
+/* Pagination Box */
+.listingsPager { padding: 5px 0; }
+.listingsPager:first-child { border-bottom: #ccc 1px dotted; }
+
+/* InvitationLightbox stuff that we can hopefully get rid of once we get consistent header styling */
+#jqmWrapper.inviteSubViewLightbox hgroup { border-bottom: #ccc 1px dotted; }
+#jqmWrapper.inviteSubViewLightbox header { border-bottom: #ccc 1px dotted; }
+
+.inviteSubViewLightbox .inviterInfoColumn { min-height: 300px; }
+.inviteSubViewLightbox .lenderCard { margin-bottom: 10px; }
+
+.button.big.actNow.matched { 
+	background-image:url('/img/2x-matching-badge.png'); 
+	background-position:110% -20% ;
+	background-repeat:no-repeat;
+	
+}
+
+.loanAdded {color:#4b9123}
+
+.loanStatus {padding:2px;}
+
+.partners_select { width:200px; }
+
+.matchAll {padding-bottom:5px;}

@@ -1,0 +1,99 @@
+/* Reset stuff to get rid of once we get rid of the old 'partial' business cards */
+.loanCard .img.thumb	{ float: none; margin-right: 0; }
+
+/* These are the styles we actually want to keep */
+.loanCards li			{ display: inline-block; }
+.loanCard				{ overflow: hidden; position: relative; }
+.loanCard .thumb		{ border: #ccc 1px solid; display: inline-block; }
+.loanCard .name			{ font-weight: bold; }
+.loanCard .info
+, .loanCard .loanStatusSubView			{ color: #666; font-size: .8571em; }
+.b .loanCard .info						{ color: #333; }
+.loanCard .sector
+, .loanCard .activity					{ display: inline; }
+.loanCard .sector + .activity			{ border-left: #666 1px solid; margin-left: 3px; padding-left: 5px; }
+.loanCard .loanStatusSubView .meter		{ width: 110px; height: 5px; }
+
+.loanCards.stack		{ display: block; margin-bottom: 10px; }
+.loanCards.stack li		{ border-bottom: #ccc 1px dotted; margin-right: 0; padding: 5px 0; }
+.loanCards.stack li .loanCard { margin: 10px 0; }
+.loanCards.stack li:first-child	.loanCard { padding-top: 0; }
+
+.loanCard.horizontal						{ width: 276px; }
+.loanCard.horizontal .thumb					{ float: left; margin-right: 10px; }
+.loanCard.horizontal .loanStatusSubView		{ margin-top: 10px; margin-left: 110px; }
+.loanCard.horizontal .button				{ position: absolute; bottom: 5px; left: 110px; }
+.loanCards .loanCard.horizontal				{ margin-right: 10px; }
+
+.loanCard.recommended-similar.horizontal	{ width: 212px; }
+li:nth-of-type(2) .loanCard.recommended-similar.horizontal
+, li:nth-of-type(3) .loanCard.recommended-similar.horizontal	{ border-left: 1px solid #ccc; padding-left: 10px; }
+li:nth-of-type(2) .loanCard.recommended-similar.horizontal .button
+, li:nth-of-type(3) .loanCard.recommended-similar.horizontal .button	{ position: absolute; bottom: 5px; left: 120px; }
+
+.loanCard.vertical		{ width: 120px; }
+.loanCard.vertical .name			{ font-size: .8571em; }
+.loanCard.vertical .loanStatusSubView	{ margin-top: 10px; }
+.loanCard.vertical .button				{ margin-top: 5px; }
+
+.loanCards li { vertical-align: top; }
+.loanCards .vertical		{ margin-right: 10px; }
+.g9 .loanCards .vertical	{ width: 125px; } /* My Portfolio */
+
+.loanCards .default.vertical.loanCard,
+.loanCards .expanded.vertical.loanCard { height: 205px; margin-bottom: 30px; }
+
+.loanCards .vertical .loanStatusSubView { position: absolute; top: 56px; }
+.loanCard.default.vertical span.info_status {position: relative; display: block;}
+
+.loanCard.lend { width: 612px; }
+.loanCard.lend .name			{ font-weight: normal; }
+.loanCard.lend .info,
+.loanCard.lend .status { float: left; }
+.loanCard.lend .borrowerCount { margin-bottom: 8px; }
+.loanCard.lend .thumb { border: #ccc 1px solid; float: left; margin-right: 15px; padding:  4px; }
+.loanCard.lend .info { font-size: 1em; margin-right: 15px; width: 290px; }
+.loanCard.lend .status { width: 145px; }
+
+.loanCard.lend .country { display: inline; font-weight: bold; }
+.loanCard.lend .sector { border-left: #ccc 1px solid; margin-left: 5px; padding-left: 5px; }
+.loanCard.lend .activity { border-left: #ccc 1px solid; }
+.loanCard.lend .description { margin-top: 10px; margin-bottom: 10px; }
+.loanCard.lend .partner { color: #888; }
+.loanCard.lend .button { position: static; }
+
+.loanCard.lend .loanStatusSubView { float: left; margin:  0 0 10px 0; }
+.loanCard.lend .status .percentRaised .number { color: #333; font-size: 2.5714em; margin-right: 3px; }
+.loanCard.lend .status .meter { margin-bottom: 20px; width: 145px; height: 12px;}
+.loanCard.lend .status .actNow { margin-bottom: 12px; padding-right: 31px; padding-left: 31px; }
+
+.loanCard.recommended { width: 230px; border-left: #ccc 1px solid; padding-left: 10px; }
+.loanCard.recommended .thumb { border: #ccc 1px solid; float: left; margin-right: 10px; padding: 0px; }
+.loanCard.recommended .info { float: left; font-size: .9em; width: 110px; margin-bottom: 6px; }
+.loanCard.recommended .name { font-size: 1em; margin-bottom: 6px;}
+.loanCard.recommended .country,
+.loanCard.recommended .sector,
+.loanCard.recommended .activity,
+.loanCard.recommended .description,
+.loanCard.recommended .partner,
+.loanCard.recommended .button { position: static; margin-top: 10px; }
+.loanCard.recommended .loanStatusSubView { display: block; }
+
+.loanCard.featured { width: 100%; padding: 0; }
+.loanCard.featured .infoHeader { width: 100%; color: #666666; }
+.loanCard.featured .name,
+.loanCard.featured .name a { margin: 0; padding: 0;  font-family:'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif; font-size-adjust:0.488; font-weight: 400; font-size: 1.4286em; line-height: 1em; }
+.loanCard.featured .status {}
+.loanCard.featured .country {}
+.loanCard.featured .info { color: #666666; width:205px; }
+.loanCard.featured .buttonWrapper { text-align: center; position: relative;}
+.loanCard.featured .description {margin-top: 8px; line-height: 149%; }
+.loanCard.featured .thumb { border: #ccc 1px solid; float: right; padding: 0px;}
+.loanCard.featured .button {}
+.loanCard.featured .loanStatusSubView {}
+.loanCard.featured .matchBadge {position: absolute; top: -10px; right: 34px; font-size: 0; }
+
+.loanCards.featured li {
+	width:100%;
+}
+.loanCards .default.vertical.loanCard.dedicationCard {height: 170px; margin-bottom: 0;}

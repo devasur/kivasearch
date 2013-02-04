@@ -1,0 +1,5 @@
+.loanStatusSubView .meter { background-color: #f1efed; display: block; width: 100%; height: 16px; -moz-border-radius: 20px; -webkit-border-radius: 20px; border-radius: 20px; }
+.loanStatusSubView .meter div 	{ background-color: #74b446; height: 100%; -moz-border-radius-topleft: 20px; -moz-border-radius-bottomleft: 20px; -webkit-border-top-left-radius: 20px; -webkit-border-bottom-left-radius: 20px; border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+.loanStatusSubView .meter div.rC	{ -moz-border-radius: 20px; -webkit-border-radius: 20px; border-radius: 20px; }
+.loanStatusSubView .meter div 	{ background-color: #888; }
+.loanStatusSubView .fundRaisingMeter div { background-color: #74b446; }

@@ -1,0 +1,55 @@
+#borrowers
+{
+	width: 20em;
+	height: 0.5em;
+	
+}
+#amount_needed
+{
+	width: 20em;
+	height: 0.5em;
+}
+#repayment_term
+{
+	width: 20em;
+	height: 0.5em;
+}
+#expiration_days
+{
+	width: 20em;
+	height: 0.5em;
+	
+}
+#partner_rating
+{
+	width: 20em;
+	height: 0.5em;
+}
+#partner_delinquency_rate
+{
+	width: 20em;
+	height: 0.5em;
+}
+#partner_default_rate
+{
+	width: 20em;
+	height: 0.5em;
+}
+#partner_portfolio_yield
+{
+	width: 20em;
+	height: 0.5em;
+}
+#partner_profit_percentage
+{
+	width: 20em;
+	height: 0.5em;
+}
+#currency_loss_protection
+{
+	width:40px; height:20px;
+}
+#exclude_pilot
+{
+	width:40px; height:20px;
+}

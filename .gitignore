@@ -11,5 +11,7 @@ pids
 logs
 results
 
-server/npm-debug.log
-server/node_modules
+npm-debug.log
+node_modules
+.metadata
+.project

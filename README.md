@@ -1,7 +1,7 @@
-[KivaSearch][http://kivasearch.aws.af.cm/]
+[KivaSearch](http://kivasearch.aws.af.cm/)
 ============
 
-Application is [live][http://kivasearch.aws.af.cm/] at AppFog.
+Application is [live](http://kivasearch.aws.af.cm/) at AppFog.
 
 
 Node, MongoDB based Search tool for Kiva [Early Beta].

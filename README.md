@@ -1,7 +1,19 @@
 kivasearch
 ==========
 
-Node, MongoDB based Search tool for Kiva [Early Beta]
+Node, MongoDB based Search tool for Kiva [Early Beta].
+
+Currently Application is feature complete 
+
+- Refreshed Loans and Partners from Kiva<>
+- User can search and select loans into a basket.
+- Users can complete the lending by transfering loans to Kiva.
+
+[TODO]
+- User preference saving
+- Scheduled searches on behalf of users and availability notifications.
+- Mobile app.
+
 
 Pre Requisites
 ============
@@ -10,9 +22,9 @@ I will update this section when I add node-config to externalize connection para
 
 Instalation
 ===========
-cd server
-npm install
-node server.js
+1. cd server<br>
+2. npm install<br>
+3. node server.js<br>
 
 It can take upto 2 minutes for the initial database priming.  Once that is done head over to http://localhost:3000/
 and lend away.

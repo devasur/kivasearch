@@ -2,29 +2,37 @@
 <html>
 <head>
     <title>Search Kiva Loans</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/handlebars.js"></script>
+
 
     <link rel="stylesheet" href="/css/flags16.css">
     <link rel="stylesheet" href="/css/kiva.supercat.css">
     <link rel="stylesheet" href="/css/Lend.css">
     <link rel="stylesheet" href="/css/LoanCardsSubView.css">
     <link rel="stylesheet" href="/css/LoanStatusSubView.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="lib/jquery-ui/css/start/jquery-ui-1.10.0.custom.min.css" />
+    
+    <script src="lib/jquery-ui/js/jquery-1.9.0.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/handlebars.js"></script>
+    <script src="lib/jquery-ui/js/jquery-ui-1.10.0.custom.min.js"></script>
 
 
-    <script>
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--START Loan Filter Management Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+
+    <script type="text/javascript">
         var filter_params = {
           borrower:{
-            borrowerCount:{min:0,max:2},
-            amount_needed:{min:0,max:700},
-            repayment_term:{min:0,max:5},
+            borrowerCount:{min:1,max:25},
+            amount_needed:{min:0,max:7500},
+            repayment_term:{min:0,max:63},
             expiration_days:{min:0,max:30},
             currency_loss_protection:false
           },
           partner:{
-            partner_rating:{min:"4",max:"5"},
+            partner_rating:{min:"0",max:"5"},
             partner_delinquency_rate:{min:0,max:5},
             partner_default_rate:{min:0,max:4},
             partner_portfolio_yield:{min:0,max:25},
@@ -32,147 +40,184 @@
             exclude_pilot:false
           }
         };
-        function rangeChanged(slider){  
-            var control = slider.id;            
-            switch(control){
-                case 'borrowers':{
-                    filter_params.borrower.borrowerCount.min = slider.value;
-                    break;
-                }
-                case 'amount_needed':{
-                    filter_params.borrower.amount_needed.max = slider.value;
-                    break;
-                }
-                case 'repayment_term':{
-                    filter_params.borrower.repayment_term.max = slider.value;
-                    break;
-                }
-                case 'expiration_days' :
-                {
-                    filter_params.borrower.expiration_days.max = slider.value;
-                    break;
-                }
-                case 'partner_rating':
-                {
-                    filter_params.partner.partner_rating.min = slider.value;
-                    break;
-                }
-                case 'partner_delinquency_rate':
-                {
-                    filter_params.partner.partner_delinquency_rate.max = slider.value;
-                    break;
-                }
-                case 'partner_default_rate' :{
-                    filter_params.partner.partner_default_rate.max = slider.value;
-                    break;
-                }
-                case 'partner_delinquency_rate':{
-                    filter_params.partner.partner_delinquency_rate.max = slider.value;
-                    break;
-                }
-                case 'partner_portfolio_yield':
-                {
-                    filter_params.partner.partner_portfolio_yield.max = slider.value;
-                    break;
-                }
-                case 'partner_profit_percentage':
-                {
-                    filter_params.partner.partner_profit_percentage.max = slider.value;
-                    break;
-                }
+
+        function sliderChanged(event,ui){
+            var minValue = ui.values[0];
+            var maxValue = ui.values[1];
+            slider = event.target.id;            
+            switch(slider)
+            {
+              case 'borrowers':
+              {
+                  filter_params.borrower.borrowerCount.min = minValue;
+                  filter_params.borrower.borrowerCount.max = maxValue;
+                  break;
+              }
+             case 'amount_needed':
+              {
+                  filter_params.borrower.amount_needed.min = minValue;
+                  filter_params.borrower.amount_needed.max = maxValue;
+                  break;
+                 }
+            case 'repayment_term':{
+                  filter_params.borrower.repayment_term.min = minValue;
+                  filter_params.borrower.repayment_term.max = maxValue;
+                  break;
             }
-            //console.log(JSON.stringify(filter_params));
-            refreshForm();
-            sendDataToServer();
+             case 'expiration_days':{
+                  filter_params.borrower.expiration_days.min = minValue;
+                  filter_params.borrower.expiration_days.max = maxValue;
+                  break;
+             }
+             case 'partner_rating':{
+                filter_params.partner.partner_rating.min = minValue;
+                filter_params.partner.partner_rating.max = maxValue;
+                break;
+            }
+            case 'partner_delinquency_rate':{
+                filter_params.partner.partner_delinquency_rate.min = minValue;
+                filter_params.partner.partner_delinquency_rate.max = maxValue;
+                break;
+            }
+            case 'partner_default_rate' :{
+                filter_params.partner.partner_default_rate.min = minValue;
+                filter_params.partner.partner_default_rate.max = maxValue;
+                break;
+            }
+            case 'partner_portfolio_yield':{
+                filter_params.partner.partner_portfolio_yield.min = minValue;
+                filter_params.partner.partner_portfolio_yield.max = maxValue;
+                break;
+            }
+            case 'partner_profit_percentage':{
+                filter_params.partner.partner_profit_percentage.min = minValue;
+                filter_params.partner.partner_profit_percentage.max = maxValue;
+                break;
+            }
+            }
+            updateLabels();
         }
+
+
         function checkBoxChanged(checkbox){
             switch(checkbox.id){
                 case 'currency_loss_protection':{
                     filter_params.borrower.currency_loss_protection = checkbox.checked ? true:false;
-                    console.log("Currency Loss Protection:" + filter_params.borrower.currency_loss_protection );
                     break;
                 }
                 case 'exclude_pilot':{
                     filter_params.partner.exclude_pilot = checkbox.checked ? true:false;
-                    console.log("Exclude pilot:" + filter_params.partner.exclude_pilot  );
                     break;
                 }
             }
             sendDataToServer();
         }
 
-        function refreshForm() {
-            var html = template({   borrowerCount:filter_params.borrower.borrowerCount.min,
-                                    amount_needed:filter_params.borrower.amount_needed.max,
-                                    repayment_term:filter_params.borrower.repayment_term.max,
-                                    expiration_days:filter_params.borrower.expiration_days.max,
-                                    partner_rating:filter_params.partner.partner_rating.min,
-                                    partner_default_rate:filter_params.partner.partner_default_rate.max,
-                                    partner_delinquency_rate:filter_params.partner.partner_delinquency_rate.max,
-                                    partner_portfolio_yield:filter_params.partner.partner_portfolio_yield.max,
-                                    partner_profit_percentage:filter_params.partner.partner_profit_percentage.max,
-                                    exclude_pilot:filter_params.partner.exclude_pilot,
-                                    currency_loss_protection:filter_params.borrower.currency_loss_protection
-                                });
-            document.querySelector("#filters").innerHTML = html;                        
+      function refreshLoanFilters(){            
+          createSlider("borrowers", 0, 25, [filter_params.borrower.borrowerCount.min,filter_params.borrower.borrowerCount.max]);
+          createSlider("amount_needed", 0, 7500, [filter_params.borrower.amount_needed.min,filter_params.borrower.amount_needed.max]);
+          createSlider("repayment_term", 0, 63, [filter_params.borrower.repayment_term.min,filter_params.borrower.repayment_term.max]);
+          createSlider("expiration_days", 0, 30, [filter_params.borrower.expiration_days.min,filter_params.borrower.expiration_days.max]);
+          createSlider("partner_delinquency_rate", 0, 7, [filter_params.partner.partner_delinquency_rate.min,filter_params.partner.partner_delinquency_rate.max]);
+          createSlider("partner_rating", 0, 5, [filter_params.partner.partner_rating.min,filter_params.partner.partner_rating.max]);
+          createSlider("partner_default_rate", 0, 12, [filter_params.partner.partner_default_rate.min,filter_params.partner.partner_default_rate.max]);
+          createSlider("partner_portfolio_yield", 0, 60, [filter_params.partner.partner_portfolio_yield.min,filter_params.partner.partner_portfolio_yield.max]);
+          createSlider("partner_profit_percentage", 0, 25, [filter_params.partner.partner_profit_percentage.min,filter_params.partner.partner_profit_percentage.max]);
+          updateLabels();
+        }
+
+        function updateLabels(){
+          $( "#lbl_borrowers").text( filter_params.borrower.borrowerCount.min + " To " + filter_params.borrower.borrowerCount.max );
+          $( "#lbl_amount_needed").text( "$" + filter_params.borrower.amount_needed.min + " To $" + filter_params.borrower.amount_needed.max );
+          $( "#lbl_repayment_term").text( filter_params.borrower.repayment_term.min + " To " + filter_params.borrower.repayment_term.max );
+          $( "#lbl_expiration_days").text( filter_params.borrower.expiration_days.min + " To " + filter_params.borrower.expiration_days.max );
+          $( "#lbl_partner_rating").text( filter_params.partner.partner_rating.min + " To " + filter_params.partner.partner_rating.max );
+          $( "#lbl_partner_delinquency_rate").text( filter_params.partner.partner_delinquency_rate.min + " To " + filter_params.partner.partner_delinquency_rate.max );
+          $( "#lbl_partner_default_rate").text( filter_params.partner.partner_default_rate.min + " To " + filter_params.partner.partner_default_rate.max );
+          $( "#lbl_partner_portfolio_yield").text( filter_params.partner.partner_portfolio_yield.min + " To " + filter_params.partner.partner_portfolio_yield.max );
+          $( "#lbl_partner_profit_percentage").text( filter_params.partner.partner_profit_percentage.min + " To " + filter_params.partner.partner_profit_percentage.max );
+        }
+
+      function createSlider(divName, min, max, values){
+           $(function() {
+            $( "#" + divName ).slider({
+              range: true,
+              min: min,
+              max: max,
+              values: [ values[0],values[1] ],
+              slide:function(event,ui){
+                sliderChanged(event,ui);
+              },
+              stop: function( event, ui ) {
+                sendDataToServer();
+              }
+            }); 
+            });
+        }
+
+
+    </script>
+
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--END Loan Filter Management Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+
+
+
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--START Search Result Management Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+    <script type="text/javascript">
+        var current_loan_list = {};
+        function saveLoans(data){
+            loans = {};
+            var loanarray = data.loans;
+            for (id in loanarray){
+                var loan = loanarray[id];
+                console.log(loan);
+                current_loan_list[loan.id] = loan;
+            }
         }
 
         function refreshLoans(data){
-            console.log({loans:data});
-            var html = loanTemplate({loans:data}); 
-            document.querySelector("#loans_list").innerHTML = html;  
+            console.log(data);
+            loans = saveLoans(data);
+            console.log(loans);
+            var html = loanTemplate(data); 
+            document.querySelector("#loans_list").innerHTML = html;
+            $('#loading').hide();
         }
         
         function sendDataToServer(){
-			$.ajax({
-			  url: "/search",
-			  data: JSON.stringify(filter_params),
-			  processData: false,
+            $('#loading').show();
+            $.ajax({
+              url: "/search",
+              data: JSON.stringify(filter_params),
+              processData: false,
               contentType: "application/json",
               method:"POST",
-			  success:function(data) { refreshLoans(data);},
-			  error:function() {console.log("Server said BAD");}
-			});        	
-        }
-
-        function initializeScreen(){
-            refreshForm();
-            sendDataToServer();
+              success:function(data) { refreshLoans(data);},
+              error:function() {
+                $('#loading').hide();
+                console.log("Server said BAD");
+              }
+            });         
         }
     </script>
 
-    <script id="result-template" type="text/x-handlebars-template">
-        <div class="g8" data-spy="affix">
-        <form>
-            <fieldset>
-                <legend>Loan</legend>
-                <label>Borrowers : > {{borrowerCount}}   </label>
-                1<input id="borrowers" type="range" min="1" max="25" step="1" value="{{borrowerCount}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>25
-                <label>Still Needed : < {{amount_needed}}</label>
-                0<input id="amount_needed" type="range" min="0" max="7500" step="1" value="{{amount_needed}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>7500
-                <label>Repaid within : < {{repayment_term}} months</label>
-                1<input id="repayment_term" type="range" min="1" max="63" step="1" value="{{repayment_term}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>63
-                <label>Expiring in less than {{expiration_days}} days</label>
-                0<input id="expiration_days" type="range" min="1" max="30" step="1" value="{{expiration_days}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>30
-                <label class="checkbox">
-                    <input type="checkbox" id="currency_loss_protection" onchange="checkBoxChanged(this)" {{#if currency_loss_protection}}checked="checked"{{/if}}"> Currency exchange loss protection
-                </label>
-                <legend>Partner</legend>
-                <label>Minimum Rating : > {{partner_rating}}</label> 0<input id="partner_rating" type="range" min="0" max="5" step=".1" value="{{partner_rating}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>5
-                <label>Delinquency < {{partner_delinquency_rate}}% </label>0<input id="partner_delinquency_rate" type="range" min="0" max="7" step=".1" value="{{partner_delinquency_rate}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>7
-                <label>Default < {{partner_default_rate}}% </label> 0<input id="partner_default_rate" type="range" min="0" max="12" step=".1" value="{{partner_default_rate}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>12
-                <label>Portfolio yield < {{partner_portfolio_yield}}%</label> 0<input id="partner_portfolio_yield" type="range" min="5" max="60" step="1" value="{{partner_portfolio_yield}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>60
-                <label>Profit < {{partner_profit_percentage}}% </label> 0<input id="partner_profit_percentage" type="range" min="-1" max="25" step="1" value="{{partner_profit_percentage}}" onmouseup="rangeChanged(this)" onmouseup="refreshForm()"/>25
-                <label class="checkbox">
-                    <input type="checkbox" id="exclude_pilot" onchange="checkBoxChanged(this)" {{#if exclude_pilot}}checked="checked"{{/if}}"> Exclude pilot
-                </label>
-            </fieldset>
-            </fieldset>
-        </form>
+    <script id="loans-template" type="text/x-handlebars-template">
+        <div>
+            {{#if loans}}
+                {{page.total}} loans available to choose from. Listing top {{page.count}}
+            {{else}}
+                Sorry, No matching loans currently.                
+            {{/if}}    
         </div>
-    </script>
-    <script id="loans-template" type="text/x-handlebars-template"> 
-    {{#each loans}} {{> loan}} {{/each}} 
+        {{#each loans}} {{> loan}} {{/each}} 
     </script>
     <script type="text/javascript">
         Handlebars.registerHelper('loadDescriptionBlock', function() {
@@ -186,9 +231,9 @@
     <script id="loan-partial" type="text/x-handlebars-template"> 
     <div class="loan">
                 <li>
-                    <article class="loanCard listing  borrowerQuickLook" id="biz_row_520662">
+                    <article class="loanCard listing  borrowerQuickLook">
                         <div class="pic g3 a">
-                            <a class="img img-s200 img img-w200h200" href="http://www.kiva.org/lend/{{id}}"><img src="http://www.kiva.org/img/s200/{{image.id}}.jpg" alt="{{name}}" title="{{name}}" width="200" height="200"></a>
+                            <a class="img img-s200 img img-w200h200" href="http://www.kiva.org/lend/{{id}}"><img class="img-circle" src="http://www.kiva.org/img/s200/{{image.id}}.jpg" alt="{{name}}" title="{{name}}" width="200" height="200"></a>
                         </div>
                         <span class="info_status">
                             <div class="desc g4">
@@ -239,7 +284,7 @@
                                     </div>
                                 </div>
                                 <span id="span{{id}}">
-                                    <a href="http://www.kiva.org/lend/{{id}}" class="button actNow big" data-loan-id="{{id}}">Lend $25</a>
+                                    <a onClick="addToCart({{id}});" class="button actNow big" data-loan-id="{{id}}">Select</a>
                                 </span>
                             </div>
         </div>
@@ -250,27 +295,292 @@
     </div> 
     </script>
 
-	<script>
-        var source = document.querySelector("#result-template").innerHTML;
-        template = Handlebars.compile(source);
+    <script type="text/javascript">
         var loanPartialSource = document.querySelector("#loan-partial").innerHTML;        
         var loanTemplateSource =  document.querySelector("#loans-template").innerHTML;
         Handlebars.registerPartial("loan", loanPartialSource);
-        loanTemplate = Handlebars.compile(loanTemplateSource); 
-	</script>
+        loanTemplate = Handlebars.compile(loanTemplateSource);
+    </script>
+
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--END Search Result Management Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+
+
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--START Basket Management Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+    <script type="text/javascript">
+        var loanCart = {};
+
+        function refreshCart(){
+            var i = 0;
+            for (aKey in loanCart){
+                i = i + 1;
+            }
+            if (i == 0){ i = "";}
+            $('#cart_count').text( i );   
+        }
+
+        function addToCart(loan_id){
+            var aLoan = current_loan_list[loan_id];
+            var exists = false;
+            for (aKey in loanCart){
+                if (aKey == loan_id){
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists){
+                aLoan["basket_amount"] = 25;
+                loanCart[loan_id] = aLoan;
+            }
+            refreshCart();
+            console.log(loanCart);
+        }
+
+        function removeFromBasket(loan_id){
+            delete(loanCart[loan_id]);
+            refreshBasketHtml();
+        }
+
+        function refreshBasketHtml(){
+            var loanArray = [];
+            for (key in loanCart){
+                loanArray.push(loanCart[key]);
+            }
+            basketHtml = basketTemplate({"loans":loanArray});
+            $('#loan_basket_body').html(basketHtml);
+            $("#my-basket-form").submit(function(event){
+                var $form = $( this );
+                var loanList = [];            
+                for (key in loanCart){
+                    var loan_amount = $form.find( "select[name=\"loan" + loanCart[key].id + "\"]").val();
+                    loanList.push({"id":loanCart[key].id,"amount":loan_amount});
+                }
+                console.log("Loan Basket:" + JSON.stringify(loanList));                
+                loans_input = $form.find( 'input[name="loans"]' );
+                loans_input.val(JSON.stringify(loanList));
+            });
+        }
+
+        function showBasket(){
+            refreshBasketHtml();
+            $('#loan_basket').modal();
+        }
+
+
+    </script>    
+    <script id="basket-template" type="text/x-handlebars-template">
+        <form id="my-basket-form" action="http://www.kiva.org/basket/set" method="post">
+            <div id="basketContents">
+                <table id="my_basket_table">
+                    <tbody>
+                        {{#each loans}} {{> basket}} {{/each}} 
+                    </tbody>
+                </table>
+            </div>
+            <div class="basketButtons cB" style="float:right">                                
+                <button type="submit" id="basketContinue" class="bigger actNow" name="checkout_img">Checkout</button>
+            </div>
+            <input name="loans" type="hidden"/>
+            <input name="donation" value="0.00" type="hidden" />
+            <input name="app_id" value="com.entelligentsia.kivasearch" type="hidden" />                    
+        </form>
+    </script>
+    <script type="text/javascript">
+        Handlebars.registerHelper("showAmountList", function(basket_amount, maxAmount) {
+            var list = "";
+            for (i = 25 ; i <= maxAmount ; i+=25 ){
+                isSelected = "";
+                if (basket_amount == i){
+                    isSelected = "selected";
+                }
+                list = list + 
+                "\<option label=\" $" + i + ".00\" value=\"" + i + "\"" + isSelected + "  >$" + i + ".00\<\/option\>"
+            }
+            return list;
+        });    
+        </script>
+     <script id="basket-partial" type="text/x-handlebars-template">
+           <tr id="loan_{{id}}" data-kv-business-id="{{id}}" data-kv-loan-id="{{id}}">
+                <td>
+                    <div><a class="img img-s100 thumb" href="http://www.kiva.org/lend/{{id}}"><img src="http://www.kiva.org/img/s100/{{image.id}}.jpg" alt="{{name}}" title="{{name}}" width="100" height="100"></a></div>
+                </td>
+                <td>
+                    <div class="title big">{{name}}</div>
+                    <div class="country"><span class="f16 {{location.country_code}}"></span>{{country_name}}</div>
+                </td>
+                <td class="totalsCol">
+                    <select name="loan{{id}}" id="loan{{id}}" style="float:right">
+                        {{{showAmountList basket_amount 250}}}
+                    </select>
+                </td>
+                <td>
+                    <a onclick="removeFromBasket({{id}})" class="small removeLoan">Remove</a>
+                </td>
+            </tr>
+     </script>
+     <script type="text/javascript">
+        var basketTemplateSource = document.querySelector("#basket-template").innerHTML; 
+        var basketPartialSource = document.querySelector("#basket-partial").innerHTML; 
+        Handlebars.registerPartial("basket", basketPartialSource);
+        basketTemplate = Handlebars.compile(basketTemplateSource);
+    </script>
+     <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--END Basket Management Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+    
+
+
+
+
+
+
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--START Utility Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+    <script>
+        function initializeScreen(){
+            refreshLoanFilters();            
+            sendDataToServer();
+            console.log("Initialize Screen Called");
+        }
+        
+        loanCountTemplate = Handlebars.compile("Currently there are {{count}} loans");
+        function refreshLoanCount(){
+                 $.ajax({
+                 url: "/countloans",
+                 method:"POST",
+                 success:function(data){
+                    var count_text = loanCountTemplate(data); 
+                    document.querySelector("#current_loan_count").innerText = count_text;
+                 },
+                 error:function() {
+                console.log("Server said BAD");
+                }
+            });         
+        }
+        setInterval(refreshLoanCount,10000);
+    </script>
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+                                                        <!--END Utility Code-->
+    <!-------------------------------------------------------------------------------------------------------------------------------------------->
+
+    <style type="text/css">
+        .ui-slider .ui-slider-handle {
+          width: .7em;
+          height: .7em;
+        }
+        .ui-slider-horizontal .ui-slider-handle { 
+          top: -0.4em;
+          margin-left: 0em;
+          height: .7em;
+        }
+        .filter_slider{
+            height:0.5px;
+        }
+    </style>
+
 </head>
-<body style="border-left: 100">
+<body >
+<nav class="navbar">
+      <div class="navbar-inner">
+        <div class="container">            
+          <a href="#" class="brand" style="float:left"><img src="/img/kivasearch_logo.png" alt="Search Kiva"></a>
+          <a href="#" class="brand"><div id="loading"><img src="/img/ajax-loader.gif" alt="Loading..."></div></a>
+          <div class="nav-collapse" style="float:right">
+            <ul class="nav">
+                <li>
+                    <span>
+                    
+                    <a href="#"  onclick="showBasket();">
+                        <i class="icon-shopping-cart"></i>&nbsp;Basket&nbsp;<span id="cart_count" class="badge badge-info"></span>&nbsp;&nbsp;&nbsp;
+                    </a> 
+                    </span>
+                </li>
+                <li>
+                    <span>
+                    <a href="http://whiteboardjunkie.wordpress.com/2013/02/05/kiva-search-nodejs-mongodb-jquery-handlebarjs-and-a-bit-of-bootstrap/">
+                        <i class="icon-leaf"></i>&nbsp;About us
+                    </a>
+                    </span>
+                </li>
+            </ul>
+
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    
+    </nav>    
 <div class="container-fluid">
     <div class="row-fluid">
-        <div class="span3" id="filters">
+        <div class="span10" id="current_loan_count">          
         </div>
+    </div>
+  
+    <div class="row-fluid">
+        <div class="span2" id="filters">
+                <div>
+                    <form>
+                        <fieldset>
+                            <legend>Loan</legend>
+                            <label><span>Borrower Count :</span><span id = "lbl_borrowers"></span></label>
+                            <div id="borrowers" class="filter_slider"></div><br>
+                            <label><span>Still Needed :</span><span id = "lbl_amount_needed"></span></label>
+                            <div id="amount_needed" class="filter_slider"></div><br>
+                            <label><span>Repaid within :</span><span id = "lbl_repayment_term"></span>  Months </label>
+                            <div id="repayment_term" class="filter_slider"></div><br>
+                            <label><span>Expiring in </span><span id = "lbl_expiration_days"></span> Days </label>
+                            <div id="expiration_days" class="filter_slider"></div><br>  
+                            <label class="checkbox">
+                            <input type="checkbox" id="currency_loss_protection" onchange="checkBoxChanged(this)" {{#if currency_loss_protection}}checked="checked"{{/if}}"> Currency exchange loss protection</label>
+                            <legend>Partner</legend>
+                            <label><span>Rating :</span><span id = "lbl_partner_rating"></span> </label>
+                            <div id="partner_rating" class="filter_slider"></div><br>
+                            <label><span>Delinquency :</span><span id = "lbl_partner_delinquency_rate"></span>%</label>
+                            <div id="partner_delinquency_rate" class="filter_slider"></div><br>
+                            <label><span>Default :</span><span id = "lbl_partner_default_rate"></span>% </label>
+                            <div id="partner_default_rate" class="filter_slider"></div><br>
+                            <label><span>Portfolio yield :</span><span id = "lbl_partner_portfolio_yield"></span>% </label>
+                            <div id="partner_portfolio_yield" class="filter_slider"></div><br>
+                            <label><span>Profit :</span><span id = "lbl_partner_profit_percentage"></span>%</label>
+                            <div id="partner_profit_percentage" class="filter_slider"></div><br>
+                            <label class="checkbox">
+                            <input type="checkbox" id="exclude_pilot" onchange="checkBoxChanged(this)" {{#if exclude_pilot}}checked="checked"{{/if}}"> Exclude pilot</label>
+                        </fieldset>
+                    </form>
+                </div>
+
+        </div>
+        <div class="span1"></div>
         <div class="span9" id="loans_list">
-            
         </div>
     </div>
 </div>
+<div id="loan_basket" class="modal hide fade" style="display: block;" aria-hidden="false">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>Loan Basket</h3>
+      </div>
+      <div class="modal-body" id="loan_basket_body">
+      </div>
+</div>
 <script>
-        document.addEventListener("DOMContentLoaded", initializeScreen());
+    document.addEventListener("DOMContentLoaded", initializeScreen());
+</script>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-38251890-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
 </script>
 </body>
 </html>

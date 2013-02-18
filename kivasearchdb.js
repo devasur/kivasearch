@@ -31,10 +31,10 @@
 	
 	var databaseUrl = generate_mongo_url(mongo);
 
-	var collections = ["loans", "search_criteria", "partners"];
+	var collections = ["loans", "search_criteria", "partners","chkoutloans"];
 	var db = require("mongojs").connect(databaseUrl, collections);
 
-	var app_id = "com.mfloanfinder.beta";
+	var app_id = "cm.af.aws.kivasearch";
 
 	var countries = require("./slim-2.js");
 
@@ -54,6 +54,7 @@
 			console.log("Prefetching all partners");
 			for (id in partners){
 				var partner = partners[id];
+				partner.rating = parseFloat(partner.rating); 
 				allPartners[partner.id] = partner;
 			}
 		});
@@ -96,12 +97,13 @@
 			console.log("Partner :" + loan.partner.name + " is with status :" + loan.partner.status + ",Marking Rating as 0");			
 			loan.partner.rating = 0;
 		}
+		else{
+			loan.partner.rating = parseFloat(loan.partner.rating);	
+		}
 		db.loans.findOne({id:loan.id},{id:1},function(err,doc){
 			if(doc != null){
-				//console.log("Removing old loan data for Loan:" + JSON.stringify(doc));
 				db.loans.remove({id:doc.id});
 			}
-			//console.log("Saving loan :" + loan.id);
 			db.loans.save(loan);
 		});
 	}
@@ -302,15 +304,15 @@
 		var partner = criterion.partner;
 		var query = {			
 			"status":"fundraising",
-			"borrower_count":{$gte:parseInt(borrower.borrowerCount.min)},
+			"borrower_count":{$gte:parseInt(borrower.borrowerCount.min),$lte:parseInt(borrower.borrowerCount.max)},
 			"amount_needed":{$gte:parseInt(borrower.amount_needed.max),$gte:parseInt(borrower.amount_needed.min)},
 			"repayment_term":{$gte:parseInt(borrower.repayment_term.min),$lte:parseInt(borrower.repayment_term.max)},
 			"expiration_days":{$gte:parseInt(borrower.expiration_days.min),$lte:parseInt(borrower.expiration_days.max)},
-			"partner.rating":{$gte:partner.partner_rating.min},
-			"partner.delinquency_rate":{$gte:parseInt(partner.partner_delinquency_rate.min),$lte:parseInt(partner.partner_delinquency_rate.max)},
-			"partner.default_rate":{$gte:parseInt(partner.partner_default_rate.min),$lte:parseInt(partner.partner_default_rate.max)},
-			"partner.additional_info.portfolio_yield":{$gte:parseInt(partner.partner_portfolio_yield.min),$lte:parseInt(partner.partner_portfolio_yield.max)},
-			"partner.additional_info.profitability":{$gte:parseInt(partner.partner_profit_percentage.min),$lte:parseInt(partner.partner_profit_percentage.max)}
+			"partner.rating":{$gte:partner.partner_rating.min,$lte:partner.partner_rating.max},
+			"partner.delinquency_rate":{$gte:parseFloat(partner.partner_delinquency_rate.min),$lte:parseFloat(partner.partner_delinquency_rate.max)},
+			"partner.default_rate":{$gte:parseFloat(partner.partner_default_rate.min),$lte:parseFloat(partner.partner_default_rate.max)},
+			"partner.additional_info.portfolio_yield":{$gte:parseFloat(partner.partner_portfolio_yield.min),$lte:parseFloat(partner.partner_portfolio_yield.max)},
+			"partner.additional_info.profitability":{$gte:parseFloat(partner.partner_profit_percentage.min),$lte:parseFloat(partner.partner_profit_percentage.max)}
 		};
 
 		if (partner.exclude_pilot){
@@ -343,6 +345,12 @@
 		console.log(JSON.stringify(query));
 		db.loans.find(query, resultTemplate).sort({"percentage_funded":-1},callback);
 	};
+
+	exports.saveCheckOutActivity = function(loans){
+		for(key in loans){
+			db.chkoutloans.save(loans[key]);	
+		}
+	}
 
 	var indexFields =
 		{
@@ -389,3 +397,13 @@
 		});
 	}
 
+	exports.countChkoutLoans = function(callback){
+		db.chkoutloans.find({},{id:1},function(err,data){
+			if(err){
+				callback(err,{count:0});
+			}
+			else{
+				callback(err,{count:data.length});
+			}
+		});
+	}

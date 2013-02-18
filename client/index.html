@@ -9,15 +9,11 @@
     <link rel="stylesheet" href="/css/Lend.css">
     <link rel="stylesheet" href="/css/LoanCardsSubView.css">
     <link rel="stylesheet" href="/css/LoanStatusSubView.css">
-    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link rel="stylesheet" href="lib/jquery-ui/css/start/jquery-ui-1.10.0.custom.min.css" />
-    
-    <script src="lib/jquery-ui/js/jquery-1.9.0.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+
     <script src="js/handlebars.js"></script>
-    <script src="lib/jquery-ui/js/jquery-ui-1.10.0.custom.min.js"></script>
-
-
+    
     <!-------------------------------------------------------------------------------------------------------------------------------------------->
                                                         <!--START Loan Filter Management Code-->
     <!-------------------------------------------------------------------------------------------------------------------------------------------->
@@ -32,7 +28,7 @@
             currency_loss_protection:false
           },
           partner:{
-            partner_rating:{min:"0",max:"5"},
+            partner_rating:{min:0,max:5},
             partner_delinquency_rate:{min:0,max:5},
             partner_default_rate:{min:0,max:4},
             partner_portfolio_yield:{min:0,max:25},
@@ -114,15 +110,15 @@
         }
 
       function refreshLoanFilters(){            
-          createSlider("borrowers", 0, 25, [filter_params.borrower.borrowerCount.min,filter_params.borrower.borrowerCount.max]);
-          createSlider("amount_needed", 0, 7500, [filter_params.borrower.amount_needed.min,filter_params.borrower.amount_needed.max]);
-          createSlider("repayment_term", 0, 63, [filter_params.borrower.repayment_term.min,filter_params.borrower.repayment_term.max]);
-          createSlider("expiration_days", 0, 30, [filter_params.borrower.expiration_days.min,filter_params.borrower.expiration_days.max]);
-          createSlider("partner_delinquency_rate", 0, 7, [filter_params.partner.partner_delinquency_rate.min,filter_params.partner.partner_delinquency_rate.max]);
-          createSlider("partner_rating", 0, 5, [filter_params.partner.partner_rating.min,filter_params.partner.partner_rating.max]);
-          createSlider("partner_default_rate", 0, 12, [filter_params.partner.partner_default_rate.min,filter_params.partner.partner_default_rate.max]);
-          createSlider("partner_portfolio_yield", 0, 60, [filter_params.partner.partner_portfolio_yield.min,filter_params.partner.partner_portfolio_yield.max]);
-          createSlider("partner_profit_percentage", 0, 25, [filter_params.partner.partner_profit_percentage.min,filter_params.partner.partner_profit_percentage.max]);
+          createSlider("borrowers", 0, 25, [filter_params.borrower.borrowerCount.min,filter_params.borrower.borrowerCount.max]),1;
+          createSlider("amount_needed", 0, 7500, [filter_params.borrower.amount_needed.min,filter_params.borrower.amount_needed.max],25);
+          createSlider("repayment_term", 0, 60, [filter_params.borrower.repayment_term.min,filter_params.borrower.repayment_term.max],1);
+          createSlider("expiration_days", 0, 30, [filter_params.borrower.expiration_days.min,filter_params.borrower.expiration_days.max],1);
+          createSlider("partner_delinquency_rate", 0, 7, [filter_params.partner.partner_delinquency_rate.min,filter_params.partner.partner_delinquency_rate.max],0.25);
+          createSlider("partner_rating", 0, 5, [filter_params.partner.partner_rating.min,filter_params.partner.partner_rating.max],0.1);
+          createSlider("partner_default_rate", 0, 12, [filter_params.partner.partner_default_rate.min,filter_params.partner.partner_default_rate.max],0.5);
+          createSlider("partner_portfolio_yield", 0, 60, [filter_params.partner.partner_portfolio_yield.min,filter_params.partner.partner_portfolio_yield.max],1);
+          createSlider("partner_profit_percentage", 0, 25, [filter_params.partner.partner_profit_percentage.min,filter_params.partner.partner_profit_percentage.max],1);
           updateLabels();
         }
 
@@ -138,12 +134,13 @@
           $( "#lbl_partner_profit_percentage").text( filter_params.partner.partner_profit_percentage.min + " To " + filter_params.partner.partner_profit_percentage.max );
         }
 
-      function createSlider(divName, min, max, values){
+      function createSlider(divName, min, max, values, step){
            $(function() {
             $( "#" + divName ).slider({
               range: true,
               min: min,
               max: max,
+              step: step,
               values: [ values[0],values[1] ],
               slide:function(event,ui){
                 sliderChanged(event,ui);
@@ -212,9 +209,9 @@
     <script id="loans-template" type="text/x-handlebars-template">
         <div>
             {{#if loans}}
-                {{page.total}} loans available to choose from. Listing top {{page.count}}
+                <h6 class="text-success">Showing top {{page.count}} from {{page.total}} matches</h6>
             {{else}}
-                Sorry, No matching loans currently.                
+                <h6 class="text-error">Sorry, No loans matched your search.</h6>                
             {{/if}}    
         </div>
         {{#each loans}} {{> loan}} {{/each}} 
@@ -363,7 +360,18 @@
                 console.log("Loan Basket:" + JSON.stringify(loanList));                
                 loans_input = $form.find( 'input[name="loans"]' );
                 loans_input.val(JSON.stringify(loanList));
+                postCheckout(loanList);
             });
+        }
+
+        function postCheckout(loans){
+            $.ajax({
+              url: "/checkout",
+              data: JSON.stringify(loans),
+              processData: false,
+              contentType: "application/json",
+              method:"POST",
+            });         
         }
 
         function showBasket(){
@@ -444,27 +452,157 @@
     <!-------------------------------------------------------------------------------------------------------------------------------------------->
     <script>
         function initializeScreen(){
-            refreshLoanFilters();            
+            refreshLoanFilters();  
             sendDataToServer();
+            refreshLoanCount();
+
+            $("i[id^=hlp_lbl_]").each(function(){
+
+              var help = help_structure[this.id];
+             // $('#' + this.id).popover({title:help.title,content:help.help_text,placement:'right' });
+             var tooltips = $( '#' + this.id ).tooltip({title:help.title,content:help.help_text,placement:'right' });
+            });
+
             console.log("Initialize Screen Called");
         }
         
-        loanCountTemplate = Handlebars.compile("Currently there are {{count}} loans");
+        loanCountTemplate = Handlebars.compile("Loans now: {{count}}");
+        chkoutLoanCountTemplate = Handlebars.compile("Site Checkouts : {{count}}");
+
         function refreshLoanCount(){
-                 $.ajax({
-                 url: "/countloans",
-                 method:"POST",
-                 success:function(data){
-                    var count_text = loanCountTemplate(data); 
-                    document.querySelector("#current_loan_count").innerText = count_text;
-                 },
-                 error:function() {
+            $.ajax({
+            url: "/countloans",
+            method:"POST",
+                success:function(data){
+                        var count_text = loanCountTemplate(data); 
+                        document.querySelector("#current_loan_count").innerText = count_text;
+                },
+                error:function() {
                 console.log("Server said BAD");
                 }
-            });         
+            });
+
+             $.ajax({
+             url: "/countChkoutLoans",
+             method:"POST",
+             success:function(data){
+                if(data.count > 0){
+                    var count_text = chkoutLoanCountTemplate(data); 
+                    document.querySelector("#checkedout_loan_count").innerText = count_text;
+                }
+             },
+             error:function() {
+                console.log("Server said BAD");
+            }
+            });
+        }
+        function findLender(){
+          lender = $('#lender_id_search').val();
+          console.log(lender);
+           $.ajax({
+           url: "http://api.kivaws.org/v1/lenders/"+ lender + ".json",
+           method:"GET",
+           success:function(data){
+              $('#lender_info_display').hide();
+              var lenderdata = data.lenders;
+              lenderid = lenderdata[0].lender_id;
+              lendername = lenderdata[0].name;
+              imageid = lenderdata[0].image.id;
+              html = lenderInfoTemplate({"lender_id":lenderid,"name":lendername, "image_id":imageid});
+              $('#lender_info_display').html(html);
+              $('#lender_info_display').show();
+           },
+           error:function() {
+              console.log("Server said BAD");
+          }
+          });
+
         }
         setInterval(refreshLoanCount,10000);
     </script>
+
+    <script id="lenderinfodisplay_template" type="text/x-handlebars-template">
+        <a href="http://www.kiva.org/lender/{{lender_id}}" onclick="window.open(this.href); return false;">
+        <span class="logged-in-fb" id="logged-in-image">
+          <img class="img-polaroid" src="http://www.kiva.org/img/50/{{image_id}}.jpg" class="logged-in-user-image" height="27">
+          <span id="lender_name" class="text-info">
+            {{name}}
+          </span> 
+        </span>
+        <div class="bold blue">
+          <span id="lender_id">{{lender_id}}</span>
+        </div>
+        </a>
+    </script>
+
+     <script type="text/javascript">
+        var lenderInfoTemplateSource = document.querySelector("#lenderinfodisplay_template").innerHTML; 
+        lenderInfoTemplate = Handlebars.compile(lenderInfoTemplateSource);
+    </script>
+
+    <script type="text/javascript">
+        var help_structure = {
+            hlp_lbl_borrowers : {   
+                "title":"Borrowers",
+                "help_text":
+                "Total number of borrowers requesting the loan in case of a group loan.  For single borrowers it is 1."
+            },
+             hlp_lbl_amount_needed : {   
+                "title":"Amount Needed",
+                "help_text":
+                "The amount still needed for this loan to become fully funded."
+            },
+            hlp_lbl_repayment_term : {
+                "title":"Repayment Term",
+                "help_text":
+                "The number of months it takes from TODAY  to the point when the last repayment is due to be paid into your Kiva account.  This is calculated differently from Kiva's 'Repayment Term' definition."
+            },
+            hlp_lbl_expiration_days : {   
+                "title":"Expiration Days",
+                "help_text":
+                "The number of days left after which this loan will expire.  Usually loans are listed for a 30 days period. A loan might stay partially funded for long if many lenders see potentials risks with the loan."
+            },
+            hlp_lbl_partner_rating : {   
+                "title":"Partner Rating",
+                "help_text":
+                "This star rating reflects the risk of institutional default associated with each of Kiva's Field Partners, with five stars indicating lower risk of institutional default and one star indicating higher risk of institutional default. "
+            },
+            hlp_lbl_partner_delinquency_rate : {   
+                "title":"Partner Delinquency Rate",
+                "help_text":
+                "Amount of late payments divided by the total outstanding principal balance Kiva has with the Field Partner. Arrears can result from late repayments from Kiva borrowers as well as delayed payments from the Field Partner.  "
+            },
+            hlp_lbl_partner_default_rate : {   
+                "title":"Partner Default Rate",
+                "help_text":
+                "Partner Default Rate = Amount of Ended Loans Defaulted / Amount of Ended Loans. "
+            },
+            hlp_lbl_partner_profit_percentage : {   
+                "title":"Partner Profit Percentage",
+                "help_text":
+                "An indication of a microfinance institution's profitability. It can also be an indicator of the long-term sustainability of a microfinance institution, as organizations consistently operating at a loss (those that have a negative return on assets) may not be able to sustain their operations over time."
+            },
+         hlp_lbl_partner_portfolio_yield: {   
+                "title":"Partner Portfolio Yield",
+                "help_text":
+                "Average interest rate and fees that Kiva borrowers pay to the Kiva Field Partner administering their loan."
+            },
+
+         hlp_lbl_currloss_protection: {   
+                "title":"Partner Portfolio Yield",
+                "help_text":
+          "When lending funds across national boundaries, the local currency in the Field Partner's country of operation may lose some of its value relative to the USD, thus requiring the Field Partner to use more of its local currency to reimburse Kiva in USD. Kiva offers Field Partners the option to protect themselves against severe currency fluctuations (a US dollar appreciation of over 10% relative to the local currency) by sharing any losses greater than 10% with Kiva lenders. By bearing these losses, lenders are able to protect the Field Partner and its borrowers from catastrophic currency devaluations."
+            },
+         hlp_lbl_exclude_pilot: {   
+                "title":"Partner Portfolio Yield",
+                "help_text":
+                "Partners who just started working with Kiva (they are allowed to raise funds on a limited basis -- they are changed to Active status fter Kiva conducts a \"pilot consultation\").  If you choose to 'Exclude' the loans from such partners are not included in your search results."
+            }
+
+        };
+    </script>
+
+
     <!-------------------------------------------------------------------------------------------------------------------------------------------->
                                                         <!--END Utility Code-->
     <!-------------------------------------------------------------------------------------------------------------------------------------------->
@@ -481,82 +619,145 @@
         }
         .filter_slider{
             height:0.5px;
+            width: 80%
         }
     </style>
 
 </head>
 <body >
-<nav class="navbar">
-      <div class="navbar-inner">
-        <div class="container">            
+<div class="navbar">
+       <div class="navbar-inner">
           <a href="#" class="brand" style="float:left"><img src="/img/kivasearch_logo.png" alt="Search Kiva"></a>
           <a href="#" class="brand"><div id="loading"><img src="/img/ajax-loader.gif" alt="Loading..."></div></a>
-          <div class="nav-collapse" style="float:right">
-            <ul class="nav">
-                <li>
-                    <span>
-                    
-                    <a href="#"  onclick="showBasket();">
-                        <i class="icon-shopping-cart"></i>&nbsp;Basket&nbsp;<span id="cart_count" class="badge badge-info"></span>&nbsp;&nbsp;&nbsp;
-                    </a> 
-                    </span>
-                </li>
-                <li>
-                    <span>
-                    <a href="http://whiteboardjunkie.wordpress.com/2013/02/05/kiva-search-nodejs-mongodb-jquery-handlebarjs-and-a-bit-of-bootstrap/">
-                        <i class="icon-leaf"></i>&nbsp;About us
-                    </a>
-                    </span>
-                </li>
-            </ul>
-
-          </div><!--/.nav-collapse -->
+          <ul class="nav">
+            <li>
+                <div class="span3 small muted" id="current_loan_count"></div>
+            </li>
+            <li>
+                <div class="span3 small muted" id="checkedout_loan_count"></div>
+            </li>
+          </ul>
+          <ul class="nav" style="float:right">
+              <li>
+                  <span>
+                  
+                  <a href="#"  onclick="showBasket();">
+                      <i class="icon-shopping-cart"></i>&nbsp;Basket&nbsp;<span id="cart_count" class="badge badge-info"></span>&nbsp;&nbsp;&nbsp;
+                  </a> 
+                  </span>
+              </li>
+              <li>
+                  <span>
+                  <a href="http://whiteboardjunkie.wordpress.com/2013/02/05/kiva-search-nodejs-mongodb-jquery-handlebarjs-and-a-bit-of-bootstrap/">
+                      <i class="icon-leaf"></i>&nbsp;About us
+                  </a>
+                  </span>
+              </li>
+          </ul>
         </div>
-      </div>
-    
-    </nav>    
+</div>
+
 <div class="container-fluid">
     <div class="row-fluid">
-        <div class="span10" id="current_loan_count">          
-        </div>
-    </div>
-  
-    <div class="row-fluid">
-        <div class="span2" id="filters">
-                <div>
-                    <form>
-                        <fieldset>
-                            <legend>Loan</legend>
-                            <label><span>Borrower Count :</span><span id = "lbl_borrowers"></span></label>
-                            <div id="borrowers" class="filter_slider"></div><br>
-                            <label><span>Still Needed :</span><span id = "lbl_amount_needed"></span></label>
-                            <div id="amount_needed" class="filter_slider"></div><br>
-                            <label><span>Repaid within :</span><span id = "lbl_repayment_term"></span>  Months </label>
-                            <div id="repayment_term" class="filter_slider"></div><br>
-                            <label><span>Expiring in </span><span id = "lbl_expiration_days"></span> Days </label>
-                            <div id="expiration_days" class="filter_slider"></div><br>  
-                            <label class="checkbox">
-                            <input type="checkbox" id="currency_loss_protection" onchange="checkBoxChanged(this)" {{#if currency_loss_protection}}checked="checked"{{/if}}"> Currency exchange loss protection</label>
-                            <legend>Partner</legend>
-                            <label><span>Rating :</span><span id = "lbl_partner_rating"></span> </label>
-                            <div id="partner_rating" class="filter_slider"></div><br>
-                            <label><span>Delinquency :</span><span id = "lbl_partner_delinquency_rate"></span>%</label>
-                            <div id="partner_delinquency_rate" class="filter_slider"></div><br>
-                            <label><span>Default :</span><span id = "lbl_partner_default_rate"></span>% </label>
-                            <div id="partner_default_rate" class="filter_slider"></div><br>
-                            <label><span>Portfolio yield :</span><span id = "lbl_partner_portfolio_yield"></span>% </label>
-                            <div id="partner_portfolio_yield" class="filter_slider"></div><br>
-                            <label><span>Profit :</span><span id = "lbl_partner_profit_percentage"></span>%</label>
-                            <div id="partner_profit_percentage" class="filter_slider"></div><br>
-                            <label class="checkbox">
-                            <input type="checkbox" id="exclude_pilot" onchange="checkBoxChanged(this)" {{#if exclude_pilot}}checked="checked"{{/if}}"> Exclude pilot</label>
-                        </fieldset>
-                    </form>
-                </div>
+        <div class="span2 id="filters">
+              <legend>Search Filters</legend>
+              <div class="tabbable">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#borrower_filters" data-toggle="tab"><i class="icon-leaf"></i>Loan</a></li>
+                  <li><a href="#partner_filters" data-toggle="tab"><i class="icon-home"></i>Partner</a></li>
+                  <li><a href="#lender_filters" data-toggle="tab"><i class="icon-user"></i>Me</a></li>
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane active" id="borrower_filters">
+                    <label><span>Borrower Count :</span><span id = "lbl_borrowers"></span> 
+                          <i id = "hlp_lbl_borrowers" title="" help_text=""  class="icon-question-sign" onblur="this.popover('show');" ></i>
+                    </label>
+                    <div id="borrowers" class="filter_slider"></div><br>
+                    <label><span>Still Needed :</span><span id = "lbl_amount_needed"></span>
+                       <i id = "hlp_lbl_amount_needed" title=""  class="icon-question-sign" ></i>
+                    </label>
+                    <div id="amount_needed" class="filter_slider"></div><br>
+                    <label><span>Repaid within :</span><span id = "lbl_repayment_term"></span>  Months
+                    <i id = "hlp_lbl_repayment_term" title=""  class="icon-question-sign" ></i> </label>
+                    <div id="repayment_term" class="filter_slider"></div><br>
+                    <label><span>Expiring in </span><span id = "lbl_expiration_days"></span> Days 
+                      <i id = "hlp_lbl_expiration_days"  title=""  class="icon-question-sign" ></i>
+                    </label>
+                    <div id="expiration_days" class="filter_slider"></div><br>  
+                    <label class="checkbox">
+                      <input type="checkbox" id="currency_loss_protection" onchange="checkBoxChanged(this);" 
+                      {{#if currency_loss_protection}}checked="checked"{{/if}}"> 
+                      Currency exchange loss protection <i id = "hlp_lbl_currloss_protection"  title=""  class="icon-question-sign" ></i>
+                    </label>
+                  </div>
+                  <div class="tab-pane" id="partner_filters">
+                    <label><span>Rating :</span><span id = "lbl_partner_rating"></span>
+                    <i id = "hlp_lbl_partner_rating" title=""  class="icon-question-sign" ></i> </label>
+                    <div id="partner_rating" class="filter_slider"></div><br>
+                    <label><span>Delinquency :</span><span id = "lbl_partner_delinquency_rate"></span>%
+                    <i id = "hlp_lbl_partner_delinquency_rate" title=""  class="icon-question-sign" ></i></label>
+                    <div id="partner_delinquency_rate" class="filter_slider"></div><br>
+                    <label><span>Default :</span><span id = "lbl_partner_default_rate"></span>% 
+                    <i id = "hlp_lbl_partner_default_rate" title=""  class="icon-question-sign" ></i></label>
+                    <div id="partner_default_rate" class="filter_slider"></div><br>
+                    <label><span>Portfolio yield :</span><span id = "lbl_partner_portfolio_yield"></span>% 
+                    <i id = "hlp_lbl_partner_portfolio_yield" title=""  class="icon-question-sign" ></i></label>
+                    <div id="partner_portfolio_yield" class="filter_slider"></div><br>
+                    <label><span>Profit :</span><span id = "lbl_partner_profit_percentage"></span>%
+                    <i id = "hlp_lbl_partner_profit_percentage" title=""  class="icon-question-sign" ></i></label>
+                    <div id="partner_profit_percentage" class="filter_slider"></div><br>
+                    <label class="checkbox">
+                    <input type="checkbox" id="exclude_pilot" onchange="checkBoxChanged(this)" {{#if exclude_pilot}}checked="checked"{{/if}}"> Exclude pilot <i id = "hlp_lbl_exclude_pilot" title=""  class="icon-question-sign" ></i></label>
 
+                  </div>
+                  <div class="tab-pane" id="lender_filters">
+                    <div class="alert small">
+                         <strong>Warning!</strong> These filters are not yet functional. ETA 24th Feb.
+                    </div>
+                    <div>
+                        <hr>
+                        <input id="lender_id_search" style="width:60%" type="text" class="search-query small" autocomplete="off" placeholder="Your lender id">
+                        <button type="button" class="btn btn-info btn-small" onclick="findLender();"><i class="icon-ok"></i></button><br>
+                        <a id="whatismyid" class="small" href="https://www.kiva.org/myLenderId" 
+                        onclick="window.open(this.href, 'Find My Lender Id', 'width=800,height=500,left:100,top:100'); return false;">
+                          <small>Don't remember?  Click here.</small>
+                        </a>
+                        <div id="lender_info_display" class="well" style="display:none"></div>
+                    </div>
+                    <div id="personal_filters">
+                        <form>
+                            <fieldset>
+                                
+                                <label>Prefer countries those:</label>
+                                <select>
+                                  <option value="CTRY_LEAST_LENT">I least lend to</option>
+                                  <option value="CTRY_MOST_LENt">I most lend to</option>
+                                  <option value="CTRY_MYPICK">I pick</option>
+                                </select>
+                                
+                                <label>Prefer partners those:</label>
+                                <select>
+                                  <option value="PRTNR_LEAST_LENT">I least lend to</option>
+                                  <option value="PRTNR_MOST_LENt">I most lend to</option>
+                                  <option value="PRTNR_MYPICK">I pick</option>
+                                </select>                                
+                                
+                                <label>Prefer sectors those:</label>
+                                <select>
+                                  <option value="SCTR_LEAST_LENT">I least lend to</option>
+                                  <option value="SCTR_MOST_LENt">I most lend to</option>
+                                  <option value="SCTR_MYPICK">I pick</option>
+                                </select>                                
+
+                            </fieldset>
+                        </form>
+                    </div>
+                  </div>                  
+                </div>
+              </div>          
         </div>
-        <div class="span1"></div>
-        <div class="span9" id="loans_list">
+        <div class="span1 divider-vertical"></div>
+        <div class="span8" id="loans_list">
         </div>
     </div>
 </div>
@@ -568,7 +769,34 @@
       <div class="modal-body" id="loan_basket_body">
       </div>
 </div>
+<script src="lib/jquery-ui/js/jquery-1.9.0.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="lib/jquery-ui/js/jquery-ui-1.10.0.custom.min.js"></script>
 <script>
+    $(function(){
+    
+        $('#lender_id_search').typeahead({
+            items:50,
+            onselect: function(obj){
+              console.log(obj);
+            },
+            source: function (query, process) {
+                return $.getJSON(
+                    'http://api.kivaws.org/v1/lenders/search.json?q=' + query,
+                    function (data) {
+                        var lenders = data.lenders;
+                        var lender_ids = [];
+                        for (key in lenders){
+                            var lender = lenders[key];
+                            lender_ids.push(lender.lender_id);
+                        }
+                        return process(lender_ids);
+                    });
+            }
+        
+        });         
+        
+    });
     document.addEventListener("DOMContentLoaded", initializeScreen());
 </script>
 <script type="text/javascript">
@@ -582,5 +810,6 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 </body>
 </html>

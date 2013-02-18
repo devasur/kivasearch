@@ -48,6 +48,13 @@ app.post('/search', function(req, res) {
 	
 });
 
+app.post('/checkout', function(req, res) {
+	var loans = req.body;
+	console.log(loans);
+	kiva.saveCheckOutActivity(loans);
+});
+
+
 function paginate(res,docs,from,count){
 	if (docs != null && docs.length > 0){
 		var total = docs.length;
@@ -71,6 +78,17 @@ app.post('/countloans', function(req, res) {
 	});
 	
 });
+
+app.post('/countChkoutLoans', function(req, res) {
+	console.log("Request received in /countChkoutLoans");
+	kiva.countChkoutLoans(function(err,docs){
+		console.log(docs);
+		res.send(docs);	
+		
+	});
+	
+});
+
 
 app.listen(process.env.VCAP_APP_PORT || 3000);
 console.log("Listening on port 3000");
